@@ -1,4 +1,8 @@
 # tiduu-shutdown-go
+<picture>
+  <source media="(max-width: 640px)" srcset="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized-mobile.png">
+  <img src="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized.png" alt="Project Header">
+</picture>
 
 Ordered graceful shutdown for Go services. It tears resources down in reverse startup order, with a deadline for each step and one for the whole run, and it turns OS signals into an orderly teardown with exit codes.
 
