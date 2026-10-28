@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// ShutdownHTTP returns a step function that shuts down srv.
+// HTTP returns a step function that shuts down srv.
 //
 // It calls srv.Shutdown with the step context. Shutdown stops accepting connections, closes
 // idle keep-alive connections, and waits for active requests. If the context expires first,
@@ -19,7 +19,7 @@ import (
 //
 // Keep-alive connections are closed by Shutdown once they are idle. The step never waits
 // beyond its deadline, whatever the standard library does with a connection that stays busy.
-func ShutdownHTTP(srv *http.Server) func(ctx context.Context) error {
+func HTTP(srv *http.Server) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		err := srv.Shutdown(ctx)
 		if err == nil {

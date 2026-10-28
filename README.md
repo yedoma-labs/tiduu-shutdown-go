@@ -57,7 +57,7 @@ func main() {
 	if err := sd.Register("db", db.Close); err != nil {
 		log.Fatal(err)
 	}
-	if err := sd.Register("http", shutdown.ShutdownHTTP(srv)); err != nil {
+	if err := sd.Register("http", shutdown.HTTP(srv)); err != nil {
 		log.Fatal(err)
 	}
 	sd.InstallSignalHandler() // SIGTERM and SIGINT start the teardown
@@ -92,7 +92,7 @@ report := sd.Run(ctx, "manual")                  // idempotent; never exits the 
 stop := sd.InstallSignalHandler()                // returns the function that removes the registration
 ```
 
-`shutdown.ShutdownHTTP(srv)` returns a step function for an `*http.Server`.
+`shutdown.HTTP(srv)` returns a step function for an `*http.Server`.
 
 ## Semantics
 
@@ -111,7 +111,7 @@ stop := sd.InstallSignalHandler()                // returns the function that re
 | Second signal during the run | Aborts the run and exits with `1` immediately. |
 | `Run` called without a signal | Never exits the process. |
 
-`ShutdownHTTP` calls `srv.Shutdown` with the step context. Shutdown stops accepting connections, closes idle keep-alive connections, and waits for active requests. If the deadline passes first, it calls `srv.Close`, which closes the remaining connections hard. The runner enforces the deadline either way, so the step never blocks the run for longer than its timeout.
+`HTTP` calls `srv.Shutdown` with the step context. Shutdown stops accepting connections, closes idle keep-alive connections, and waits for active requests. If the deadline passes first, it calls `srv.Close`, which closes the remaining connections hard. The runner enforces the deadline either way, so the step never blocks the run for longer than its timeout.
 
 ## Limitations
 
@@ -119,7 +119,7 @@ stop := sd.InstallSignalHandler()                // returns the function that re
 - **Load balancer delay is not handled.** Some load balancers keep routing traffic for a few seconds after an instance stops accepting connections. Flip your readiness endpoint or add a short `preStop` delay yourself.
 - **Steps cannot be cancelled.** A step that ignores its context keeps running in the background after it has been reported as `timeout`. Make steps respect `ctx` where you can.
 - **Only the resources you register are torn down.** WebSockets, gRPC servers, and raw TCP listeners need their own `Register` step.
-- **Hard close may outlast its step.** When `ShutdownHTTP` hits its deadline, the runner moves on at once, and the `srv.Close` call may still be running for a moment.
+- **Hard close may outlast its step.** When `HTTP` hits its deadline, the runner moves on at once, and the `srv.Close` call may still be running for a moment.
 
 ## Comparison
 
